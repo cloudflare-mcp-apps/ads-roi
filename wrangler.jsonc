@@ -40,7 +40,7 @@
    * Builds widgets BEFORE TypeScript compilation
    */
   "build": {
-    "command": "npm install && npm run build:widgets && npx tsc --noEmit"
+    "command": "npm install && npm run build:widgets && node node_modules/typescript/lib/tsc.js --noEmit"
   },
 
   /**
