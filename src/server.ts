@@ -150,6 +150,26 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
             .default(100)
             .meta({ description: "Average order value in dollars (e.g., 100)" }),
         },
+        outputSchema: {
+          inputs: z.object({
+            monthlyBudget: z.number().positive(),
+            cpc: z.number().positive(),
+            conversionRatePercent: z.number().min(0).max(100),
+            averageOrderValue: z.number().positive()
+          }),
+          metrics: z.object({
+            clicks: z.number().int().nonnegative(),
+            conversions: z.number().int().nonnegative(),
+            revenue: z.number().nonnegative(),
+            profit: z.number(), // Can be negative (loss)
+            roiPercent: z.number(), // Can be negative (loss)
+            breakEvenBudget: z.number().positive()
+          }),
+          chartData: z.object({
+            budgetScenarios: z.array(z.number().nonnegative()).length(10),
+            profitCurve: z.array(z.number()).length(10) // Can contain negative values
+          })
+        },
         annotations: {
           // MCP 2025-11 ToolAnnotations for client safety hints
           readOnlyHint: true,       // Tool only performs calculations, doesn't modify data
