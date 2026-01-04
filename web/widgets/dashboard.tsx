@@ -60,6 +60,7 @@ function RoiCalculatorWidget() {
     averageOrderValue: 100,
   });
   const chartRef = useRef<ChartJS<"line"> | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
    * PATTERN: useApp hook handles connection and provides app instance
@@ -100,6 +101,11 @@ function RoiCalculatorWidget() {
        * MUST return empty object {}
        */
       app.onteardown = async () => {
+        // Clear pending debounce timeout
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current);
+        }
+
         // Destroy chart instance
         if (chartRef.current) {
           chartRef.current.destroy();
@@ -169,11 +175,16 @@ function RoiCalculatorWidget() {
     (key: keyof typeof inputs, value: number) => {
       const newInputs = { ...inputs, [key]: value };
       setInputs(newInputs);
-      // Debounce calculation to avoid excessive server calls
-      const timeout = setTimeout(() => {
+
+      // Clear previous timeout to prevent multiple calls
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced calculation
+      debounceTimeoutRef.current = setTimeout(() => {
         calculateRoi(newInputs);
-      }, 300);
-      return () => clearTimeout(timeout);
+      }, 500); // Increased to 500ms for better debouncing
     },
     [inputs, calculateRoi]
   );
