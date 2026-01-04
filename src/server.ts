@@ -99,9 +99,9 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
       },
       async () => {
         // Load built widget from Cloudflare Assets binding
-        // Widget is built by Vite from web/widgets/widget.html
+        // Widget is built by Vite from web/widgets/dashboard.html
         // Dynamic data comes via ui/notifications/tool-result postMessage
-        const templateHTML = await loadHtml(this.env.ASSETS, "/widget.html");
+        const templateHTML = await loadHtml(this.env.ASSETS, "/dashboard.html");
 
         return {
           contents: [{
@@ -125,48 +125,132 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
     // ========================================================================
     // CRITICAL: _meta[RESOURCE_URI_META_KEY] links this tool to PART 1 resource
     // This linkage tells the host which UI to render when tool returns results
-    //
-    // TODO: Replace with your actual tool implementation
     registerAppTool(
       this.server,
-      "example-tool",
+      "calculate_campaign_roi",
       {
-        title: TOOL_METADATA["example-tool"].title,
-        description: getToolDescription("example-tool"),
+        title: TOOL_METADATA["calculate_campaign_roi"].title,
+        description: getToolDescription("calculate_campaign_roi"),
         inputSchema: {
-          input: z.string()
-            .min(1)
-            .meta({ description: "Input string to process. TODO: Replace with your actual input schema." }),
+          monthlyBudget: z.number()
+            .positive()
+            .default(10000)
+            .meta({ description: "Monthly advertising budget in dollars (e.g., 10000)" }),
+          cpc: z.number()
+            .positive()
+            .default(2.5)
+            .meta({ description: "Cost per click in dollars (e.g., 2.5)" }),
+          conversionRatePercent: z.number()
+            .min(0)
+            .max(100)
+            .default(5)
+            .meta({ description: "Conversion rate as percentage 0-100 (e.g., 5 for 5%)" }),
+          averageOrderValue: z.number()
+            .positive()
+            .default(100)
+            .meta({ description: "Average order value in dollars (e.g., 100)" }),
         },
         annotations: {
           // MCP 2025-11 ToolAnnotations for client safety hints
-          readOnlyHint: true,       // Tool only reads data, doesn't modify anything
+          readOnlyHint: true,       // Tool only performs calculations, doesn't modify data
           destructiveHint: false,   // No destructive side effects
-          idempotentHint: true,     // Same input returns same result
-          openWorldHint: false      // Does NOT interact with external services
+          idempotentHint: true,     // Same input always returns same result
+          openWorldHint: false      // Pure calculation, no external API calls
         },
         // SEP-1865: Link tool to predeclared UI resource (PART 1)
         // Host will render this resource when tool returns results
-        // Always include - hosts that don't support UI will ignore it
         _meta: {
           [RESOURCE_URI_META_KEY]: widgetResource.uri  // Links to PART 1
         },
       },
-      async (args: { input: string }) => {
+      async (args: { monthlyBudget: number; cpc: number; conversionRatePercent: number; averageOrderValue: number }) => {
         // Verify user is authenticated
         if (!this.props?.userId) {
           throw new Error("User ID not found in authentication context");
         }
 
-        const { input } = args;
+        const { monthlyBudget, cpc, conversionRatePercent, averageOrderValue } = args;
 
         try {
-          // TODO: Replace with your actual tool logic
+          // ========================================================================
+          // ROI Calculation Business Logic
+          // ========================================================================
+
+          // Step 1: Calculate clicks from budget and CPC
+          const clicks = Math.floor(monthlyBudget / cpc);
+
+          // Step 2: Calculate conversions from clicks and conversion rate
+          const conversions = Math.floor(clicks * (conversionRatePercent / 100));
+
+          // Step 3: Calculate revenue from conversions and AOV
+          const revenue = conversions * averageOrderValue;
+
+          // Step 4: Calculate profit (revenue - budget)
+          const profit = revenue - monthlyBudget;
+
+          // Step 5: Calculate ROI percentage
+          const roiPercent = (profit / monthlyBudget) * 100;
+
+          // Step 6: Calculate break-even budget
+          // Break-even when: revenue = budget
+          // conversions * AOV = budget
+          // (clicks * conversionRate) * AOV = budget
+          // (budget / cpc * conversionRate) * AOV = budget
+          // Solving for budget: break-even = (cpc) / (conversionRate * AOV)
+          const conversionRateDecimal = conversionRatePercent / 100;
+          const breakEvenBudget = conversionRateDecimal > 0 && averageOrderValue > 0
+            ? Math.ceil(cpc / (conversionRateDecimal * averageOrderValue))
+            : 0;
+
+          // Step 7: Generate chart data for profit curve
+          // Create 10 budget scenarios from 0 to 2x current budget
+          const maxBudget = monthlyBudget * 2;
+          const budgetStep = maxBudget / 9; // 10 data points
+          const budgetScenarios: number[] = [];
+          const profitCurve: number[] = [];
+
+          for (let i = 0; i < 10; i++) {
+            const scenarioBudget = Math.floor(budgetStep * i);
+            budgetScenarios.push(scenarioBudget);
+
+            // Calculate profit for this budget scenario
+            const scenarioClicks = Math.floor(scenarioBudget / cpc);
+            const scenarioConversions = Math.floor(scenarioClicks * conversionRateDecimal);
+            const scenarioRevenue = scenarioConversions * averageOrderValue;
+            const scenarioProfit = scenarioRevenue - scenarioBudget;
+
+            profitCurve.push(scenarioProfit);
+          }
+
+          // Step 8: Build result structure matching widget's RoiResult interface
           const result = {
-            message: `Processed: ${input}`,
-            timestamp: new Date().toISOString(),
-            userId: this.props.userId,
+            inputs: {
+              monthlyBudget,
+              cpc,
+              conversionRatePercent,
+              averageOrderValue,
+            },
+            metrics: {
+              clicks,
+              conversions,
+              revenue,
+              profit,
+              roiPercent,
+              breakEvenBudget,
+            },
+            chartData: {
+              budgetScenarios,
+              profitCurve,
+            },
           };
+
+          // Log successful calculation
+          console.log('ROI calculated', {
+            userId: this.props.userId,
+            budget: monthlyBudget,
+            profit,
+            roiPercent: roiPercent.toFixed(2),
+          });
 
           // Return both text content (for non-UI hosts) and structured content (for UI hosts)
           return {
@@ -178,10 +262,16 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
             structuredContent: result as unknown as Record<string, unknown>
           };
         } catch (error) {
+          // Log calculation error
+          console.error('ROI calculation error', {
+            error: String(error),
+            userId: this.props.userId,
+          });
+
           return {
             content: [{
               type: "text" as const,
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`
+              text: `Error calculating ROI: ${error instanceof Error ? error.message : String(error)}`
             }],
             isError: true
           };

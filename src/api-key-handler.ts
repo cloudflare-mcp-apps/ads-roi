@@ -228,18 +228,32 @@ async function getOrCreateServer(
 
   // ========================================================================
   // Tool Registration (must match server.ts)
-  // TODO: Add your tools here - KEEP IN SYNC with server.ts
+  // KEEP IN SYNC with server.ts
   // ========================================================================
   registerAppTool(
     server,
-    "example-tool",
+    "calculate_campaign_roi",
     {
-      title: TOOL_METADATA["example-tool"].title,
-      description: getToolDescription("example-tool"),
+      title: TOOL_METADATA["calculate_campaign_roi"].title,
+      description: getToolDescription("calculate_campaign_roi"),
       inputSchema: {
-        input: z.string()
-          .min(1)
-          .meta({ description: "Input string to process" }),
+        monthlyBudget: z.number()
+          .positive()
+          .default(10000)
+          .meta({ description: "Monthly advertising budget in dollars (e.g., 10000)" }),
+        cpc: z.number()
+          .positive()
+          .default(2.5)
+          .meta({ description: "Cost per click in dollars (e.g., 2.5)" }),
+        conversionRatePercent: z.number()
+          .min(0)
+          .max(100)
+          .default(5)
+          .meta({ description: "Conversion rate as percentage 0-100 (e.g., 5 for 5%)" }),
+        averageOrderValue: z.number()
+          .positive()
+          .default(100)
+          .meta({ description: "Average order value in dollars (e.g., 100)" }),
       },
       annotations: {
         readOnlyHint: true,
@@ -251,15 +265,43 @@ async function getOrCreateServer(
         [RESOURCE_URI_META_KEY]: widgetResource.uri
       }
     },
-    async (args: { input: string }) => {
-      const { input } = args;
+    async (args: { monthlyBudget: number; cpc: number; conversionRatePercent: number; averageOrderValue: number }) => {
+      const { monthlyBudget, cpc, conversionRatePercent, averageOrderValue } = args;
 
       try {
-        // TODO: Replace with your actual tool logic
+        // ROI Calculation Business Logic (same as server.ts)
+        const clicks = Math.floor(monthlyBudget / cpc);
+        const conversions = Math.floor(clicks * (conversionRatePercent / 100));
+        const revenue = conversions * averageOrderValue;
+        const profit = revenue - monthlyBudget;
+        const roiPercent = (profit / monthlyBudget) * 100;
+
+        const conversionRateDecimal = conversionRatePercent / 100;
+        const breakEvenBudget = conversionRateDecimal > 0 && averageOrderValue > 0
+          ? Math.ceil(cpc / (conversionRateDecimal * averageOrderValue))
+          : 0;
+
+        const maxBudget = monthlyBudget * 2;
+        const budgetStep = maxBudget / 9;
+        const budgetScenarios: number[] = [];
+        const profitCurve: number[] = [];
+
+        for (let i = 0; i < 10; i++) {
+          const scenarioBudget = Math.floor(budgetStep * i);
+          budgetScenarios.push(scenarioBudget);
+
+          const scenarioClicks = Math.floor(scenarioBudget / cpc);
+          const scenarioConversions = Math.floor(scenarioClicks * conversionRateDecimal);
+          const scenarioRevenue = scenarioConversions * averageOrderValue;
+          const scenarioProfit = scenarioRevenue - scenarioBudget;
+
+          profitCurve.push(scenarioProfit);
+        }
+
         const result = {
-          message: `Processed: ${input}`,
-          timestamp: new Date().toISOString(),
-          userId: userId,
+          inputs: { monthlyBudget, cpc, conversionRatePercent, averageOrderValue },
+          metrics: { clicks, conversions, revenue, profit, roiPercent, breakEvenBudget },
+          chartData: { budgetScenarios, profitCurve },
         };
 
         return {
@@ -273,7 +315,7 @@ async function getOrCreateServer(
         return {
           content: [{
             type: "text" as const,
-            text: `Error: ${error instanceof Error ? error.message : String(error)}`
+            text: `Error calculating ROI: ${error instanceof Error ? error.message : String(error)}`
           }],
           isError: true
         };
@@ -357,18 +399,21 @@ function handlePing(request: { id: number | string }): Response {
 }
 
 async function handleToolsList(request: { id: number | string }): Promise<Response> {
-  // TODO: Add your tools to this list - KEEP IN SYNC with server.ts
+  // KEEP IN SYNC with server.ts
   return jsonRpcResponse(request.id, {
     tools: [{
-      name: "example-tool",
-      title: TOOL_METADATA["example-tool"].title,
-      description: getToolDescription("example-tool"),
+      name: "calculate_campaign_roi",
+      title: TOOL_METADATA["calculate_campaign_roi"].title,
+      description: getToolDescription("calculate_campaign_roi"),
       inputSchema: {
         type: "object",
         properties: {
-          input: { type: "string", description: "Input string to process" }
+          monthlyBudget: { type: "number", description: "Monthly advertising budget in dollars" },
+          cpc: { type: "number", description: "Cost per click in dollars" },
+          conversionRatePercent: { type: "number", description: "Conversion rate as percentage 0-100" },
+          averageOrderValue: { type: "number", description: "Average order value in dollars" }
         },
-        required: ["input"]
+        required: []
       },
       annotations: {
         readOnlyHint: true,
@@ -389,16 +434,48 @@ async function handleToolsCall(
   const params = request.params as { name?: string; arguments?: Record<string, unknown> } | undefined;
   const { name, arguments: args } = params || {};
 
-  // TODO: Add cases for your tools - KEEP IN SYNC with server.ts
+  // KEEP IN SYNC with server.ts
   switch (name) {
-    case "example-tool": {
-      const input = (args?.input as string) || "";
+    case "calculate_campaign_roi": {
+      const monthlyBudget = (args?.monthlyBudget as number) || 10000;
+      const cpc = (args?.cpc as number) || 2.5;
+      const conversionRatePercent = (args?.conversionRatePercent as number) || 5;
+      const averageOrderValue = (args?.averageOrderValue as number) || 100;
 
       try {
+        // ROI Calculation Business Logic (same as server.ts)
+        const clicks = Math.floor(monthlyBudget / cpc);
+        const conversions = Math.floor(clicks * (conversionRatePercent / 100));
+        const revenue = conversions * averageOrderValue;
+        const profit = revenue - monthlyBudget;
+        const roiPercent = (profit / monthlyBudget) * 100;
+
+        const conversionRateDecimal = conversionRatePercent / 100;
+        const breakEvenBudget = conversionRateDecimal > 0 && averageOrderValue > 0
+          ? Math.ceil(cpc / (conversionRateDecimal * averageOrderValue))
+          : 0;
+
+        const maxBudget = monthlyBudget * 2;
+        const budgetStep = maxBudget / 9;
+        const budgetScenarios: number[] = [];
+        const profitCurve: number[] = [];
+
+        for (let i = 0; i < 10; i++) {
+          const scenarioBudget = Math.floor(budgetStep * i);
+          budgetScenarios.push(scenarioBudget);
+
+          const scenarioClicks = Math.floor(scenarioBudget / cpc);
+          const scenarioConversions = Math.floor(scenarioClicks * conversionRateDecimal);
+          const scenarioRevenue = scenarioConversions * averageOrderValue;
+          const scenarioProfit = scenarioRevenue - scenarioBudget;
+
+          profitCurve.push(scenarioProfit);
+        }
+
         const result = {
-          message: `Processed: ${input}`,
-          timestamp: new Date().toISOString(),
-          userId: userId,
+          inputs: { monthlyBudget, cpc, conversionRatePercent, averageOrderValue },
+          metrics: { clicks, conversions, revenue, profit, roiPercent, breakEvenBudget },
+          chartData: { budgetScenarios, profitCurve },
         };
 
         return jsonRpcResponse(request.id, {
@@ -412,7 +489,7 @@ async function handleToolsCall(
         return jsonRpcResponse(request.id, {
           content: [{
             type: "text",
-            text: `Error: ${error instanceof Error ? error.message : String(error)}`
+            text: `Error calculating ROI: ${error instanceof Error ? error.message : String(error)}`
           }],
           isError: true
         });
@@ -442,7 +519,7 @@ async function handleResourcesRead(
   const { uri } = params || {};
 
   if (uri === UI_RESOURCES.widget.uri) {
-    const html = await loadHtml(env.ASSETS, "/widget.html");
+    const html = await loadHtml(env.ASSETS, "/dashboard.html");
     return jsonRpcResponse(request.id, {
       contents: [{
         uri: UI_RESOURCES.widget.uri,

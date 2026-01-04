@@ -55,54 +55,39 @@ export interface ToolMetadata {
  */
 export const TOOL_METADATA = {
   /**
-   * Example Tool
+   * Calculate Campaign ROI
    *
-   * TODO: Replace with your actual tool definitions
-   * Each tool should follow the 4-part description pattern:
-   * 1. Purpose: What it does
-   * 2. Returns: What data it returns
-   * 3. Use Case: When to use it
-   * 4. Constraints: Limitations and edge cases
+   * Calculates advertising campaign return on investment with interactive parameter adjustment.
+   * Provides profit, revenue, ROI percentage, and break-even analysis for marketing budget planning.
    */
-  "example-tool": {
-    title: "Example Tool",
+  "calculate_campaign_roi": {
+    title: "Calculate Campaign ROI",
 
     description: {
-      part1_purpose: "Performs an example operation on the provided input.",
+      part1_purpose: "Calculates advertising campaign return on investment based on monthly budget, cost per click, conversion rate, and average order value.",
 
-      part2_returns: "Returns the result object with processed data, status, and metadata fields.",
+      part2_returns: "Returns metrics (clicks, conversions, revenue, profit, ROI percentage, break-even budget) and chart data (budget scenarios, profit curve) for visualization.",
 
-      part3_useCase: "Use this when you need to demonstrate the tool pattern or test the MCP server setup.",
+      part3_useCase: "Use when planning advertising budgets, optimizing campaign parameters, or analyzing profitability scenarios across different spending levels.",
 
-      part4_constraints: "Note: This is a placeholder tool. Replace with your actual implementation. Input must be non-empty."
+      part4_constraints: "Assumes linear click delivery and constant conversion rates. Real campaigns may have diminishing returns at higher budgets. All monetary values in USD."
     },
 
     examples: [
       {
-        scenario: "Basic usage",
-        description: "Call the tool with a simple input to verify server connectivity"
+        scenario: "Small business budget planning",
+        description: "Calculate ROI for $5,000/month budget with $2.50 CPC, 3% conversion rate, $75 AOV"
       },
       {
-        scenario: "Error handling",
-        description: "Test tool behavior with invalid input to verify error responses"
+        scenario: "Break-even analysis",
+        description: "Determine minimum budget needed to achieve profitability with given campaign parameters"
+      },
+      {
+        scenario: "Parameter optimization",
+        description: "Adjust sliders to see real-time impact of CPC and conversion rate changes on profit"
       }
     ]
   } as const satisfies ToolMetadata,
-
-  // TODO: Add your tools here following this pattern:
-  //
-  // "your-tool-name": {
-  //   title: "Your Tool Name",
-  //   description: {
-  //     part1_purpose: "What the tool does...",
-  //     part2_returns: "Returns X, Y, Z...",
-  //     part3_useCase: "Use when...",
-  //     part4_constraints: "Note: limitations..."
-  //   },
-  //   examples: [
-  //     { scenario: "Example 1", description: "..." }
-  //   ]
-  // } as const satisfies ToolMetadata,
 
 } as const;
 

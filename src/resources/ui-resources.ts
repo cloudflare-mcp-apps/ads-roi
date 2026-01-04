@@ -72,24 +72,25 @@ export interface UIResourceDefinition {
  */
 export const UI_RESOURCES = {
   /**
-   * Main Widget
+   * ROI Calculator Dashboard
    *
-   * TODO: Replace with your actual widget configuration
+   * Interactive widget for calculating advertising campaign ROI with real-time sliders.
+   * Displays profit curve visualization and break-even analysis.
    *
-   * Used by: your_tool_name tool
+   * Used by: calculate_campaign_roi tool
    * Data delivery: Via ui/notifications/tool-result postMessage
    */
   widget: {
     /** Unique URI identifying this UI resource */
-    uri: "ui://{{SERVER_ID}}/widget",
+    uri: "ui://ads-roi/dashboard",
 
     /** Resource name for registration and logging */
-    name: "main_widget",
+    name: "roi_calculator_dashboard",
 
     /** Human-readable description */
     description:
-      "Interactive widget for {{SERVER_NAME}}. " +
-      "TODO: Replace with a detailed description of what this widget displays and its features.",
+      "Interactive ROI calculator widget with real-time sliders for budget, CPC, conversion rate, and AOV. " +
+      "Displays profit curve visualization using Chart.js and break-even analysis for advertising campaign planning.",
 
     /** MIME type indicating this is an MCP App */
     mimeType: UI_MIME_TYPE,
@@ -99,10 +100,10 @@ export const UI_RESOURCES = {
       ui: {
         csp: {
           // connectDomains: Empty because all data comes via MCP protocol (no external API calls from widget)
-          // If your widget needs to call external APIs, add domains here
+          // This is a pure calculator widget with no external API dependencies
           connectDomains: [] as string[],
-          // resourceDomains: Empty because all resources (React, CSS) are inlined by viteSingleFile
-          // Add domains here if you load external images, scripts, or fonts
+          // resourceDomains: Empty because all resources (React, Chart.js, CSS) are inlined by viteSingleFile
+          // No external CDN dependencies - all assets bundled into single HTML file
           resourceDomains: [] as string[],
         },
         /** Request visible border from host client */
