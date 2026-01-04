@@ -251,7 +251,7 @@ function RoiCalculatorWidget() {
 
   if (error) {
     return (
-      <div className="h-[600px] flex items-center justify-center bg-white dark:bg-slate-900">
+      <div className="min-h-[200px] flex items-center justify-center bg-white dark:bg-slate-900">
         <div className="text-red-600 dark:text-red-400">Error: {error.message}</div>
       </div>
     );
@@ -259,15 +259,15 @@ function RoiCalculatorWidget() {
 
   if (!app) {
     return (
-      <div className="h-[600px] flex items-center justify-center bg-white dark:bg-slate-900">
+      <div className="min-h-[200px] flex items-center justify-center bg-white dark:bg-slate-900">
         <div className="text-gray-600 dark:text-gray-400">Connecting...</div>
       </div>
     );
   }
 
   return (
-    <div className="h-[600px] w-full flex flex-col overflow-hidden bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100">
-      <div className="flex-1 flex flex-col p-4 space-y-3 overflow-y-auto">
+    <div className="w-full flex flex-col bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100">
+      <div className="flex flex-col p-4 space-y-3">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-xl font-bold">Advertising ROI Calculator</h1>
@@ -407,7 +407,7 @@ function RoiCalculatorWidget() {
             </div>
 
             {/* Chart */}
-            <div className="flex-1 min-h-[140px]">
+            <div className="h-[200px]">
               {chartData && (
                 <Line ref={chartRef} data={chartData} options={chartOptions as any} />
               )}
