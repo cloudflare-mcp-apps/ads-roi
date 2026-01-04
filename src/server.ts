@@ -6,7 +6,7 @@
  * This file contains the main MCP server class with:
  * - Tool registration (with UI linkage)
  * - Resource registration (UI widgets)
- * - Prompt registration (optional)
+ * - Prompt registration (slash commands)
  *
  * Architecture:
  * - Extends McpAgent from 'agents/mcp' (Cloudflare Agents SDK)
