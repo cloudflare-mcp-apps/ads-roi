@@ -292,20 +292,20 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
         title: "Calculate Campaign ROI",
         description: "Calculate advertising campaign ROI with custom budget, CPC, conversion rate, and AOV parameters.",
         argsSchema: {
-          budget: z.number()
+          budget: z.coerce.number()
             .positive()
             .default(10000)
             .describe("Monthly advertising budget in dollars (e.g., 10000, 5000, 15000)"),
-          cpc: z.number()
+          cpc: z.coerce.number()
             .positive()
             .default(2.5)
             .describe("Cost per click in dollars (e.g., 2.5, 1.75, 3.00)"),
-          conversion: z.number()
+          conversion: z.coerce.number()
             .min(0)
             .max(100)
             .default(5)
             .describe("Conversion rate as percentage 0-100 (e.g., 5 for 5%, 3.5 for 3.5%)"),
-          aov: z.number()
+          aov: z.coerce.number()
             .positive()
             .default(100)
             .describe("Average order value in dollars (e.g., 100, 150, 75)")
