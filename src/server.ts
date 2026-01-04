@@ -318,11 +318,14 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
               role: "user",
               content: {
                 type: "text",
-                text: `Please use the 'calculate_campaign_roi' tool to calculate advertising ROI with these parameters:
-- monthlyBudget: ${budget}
-- cpc: ${cpc}
-- conversionRatePercent: ${conversion}
-- averageOrderValue: ${aov}`
+                text: `Calculate advertising ROI with monthly budget $${budget}, CPC $${cpc}, conversion rate ${conversion}%, and average order value $${aov}.`
+              }
+            },
+            {
+              role: "assistant",
+              content: {
+                type: "text",
+                text: `I'll calculate the advertising ROI using the calculate_campaign_roi tool with your parameters (budget: $${budget}, CPC: $${cpc}, conversion: ${conversion}%, AOV: $${aov}).`
               }
             }
           ]
