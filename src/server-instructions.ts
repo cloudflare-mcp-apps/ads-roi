@@ -22,13 +22,31 @@ Ads ROI Simulator MCP - Calculate advertising campaign ROI with interactive para
 ### calculate_campaign_roi
 Calculates advertising campaign return on investment based on monthly budget, cost per click (CPC), conversion rate, and average order value (AOV). Returns comprehensive metrics including profit, revenue, ROI percentage, break-even budget, and chart data for visualization.
 
-**Inputs**:
+## Available Prompts (Slash Commands)
+
+### /calculate-roi
+Quick ROI calculation via slash command with custom parameters. Users can invoke this prompt to immediately calculate advertising ROI without typing full instructions.
+
+**Parameters**:
+- budget: Monthly advertising budget in dollars (default: 10000)
+- cpc: Cost per click in dollars (default: 2.5)
+- conversion: Conversion rate as percentage 0-100 (default: 5)
+- aov: Average order value in dollars (default: 100)
+
+**Example Usage**:
+- Type: /calculate-roi budget:15000 cpc:3.0 conversion:4 aov:150
+- Type: /calculate-roi budget:5000 (uses defaults for other parameters)
+- Type: /calculate-roi (uses all default values)
+
+**Tool Inputs & Outputs**:
+
+Inputs:
 - monthlyBudget: Monthly advertising budget in dollars (default: 10000)
 - cpc: Cost per click in dollars (default: 2.5)
 - conversionRatePercent: Conversion rate as percentage 0-100 (default: 5)
 - averageOrderValue: Average order value in dollars (default: 100)
 
-**Outputs**:
+Outputs:
 - inputs: Echo of provided parameters
 - metrics: { clicks, conversions, revenue, profit, roiPercent, breakEvenBudget }
 - chartData: { budgetScenarios[], profitCurve[] } for profit curve visualization
@@ -51,16 +69,24 @@ This server includes SEP-1865 MCP Apps support with interactive widgets:
 
 ## Usage Patterns
 
-1. **Initial Analysis**: Call calculate_campaign_roi with default values or user-provided parameters
-   - Example: "Calculate ROI for a $10,000 monthly budget with $2.50 CPC, 5% conversion rate, and $100 AOV"
+**IMPORTANT**: When the user asks to "show calculator", "show calc", "display calculator", or similar requests to see the UI, IMMEDIATELY invoke calculate_campaign_roi with the default parameter values. Do NOT ask the user for parameter values first - just call the tool and let them adjust values in the interactive widget.
 
-2. **Scenario Comparison**: Call the tool multiple times with different parameters to compare scenarios
+1. **Show Calculator**: When user requests the calculator UI
+   - Queries: "show calc", "display calculator", "open ROI calculator", "I want to see the calculator"
+   - Action: IMMEDIATELY call calculate_campaign_roi with defaults (no user confirmation needed)
+   - Example: calculate_campaign_roi(monthlyBudget: 10000, cpc: 2.5, conversionRatePercent: 5, averageOrderValue: 100)
+
+2. **Custom Analysis**: Call calculate_campaign_roi with user-specified parameters
+   - Example: "Calculate ROI for a $15,000 monthly budget with $3.00 CPC, 4% conversion rate, and $150 AOV"
+   - Action: Use the specific values provided by the user
+
+3. **Scenario Comparison**: Call the tool multiple times with different parameters to compare scenarios
    - Example: "What if I increase the budget to $15,000?"
 
-3. **Break-Even Analysis**: Use the breakEvenBudget metric to determine minimum viable budget
+4. **Break-Even Analysis**: Use the breakEvenBudget metric to determine minimum viable budget
    - Example: "What's the minimum budget needed to break even with these parameters?"
 
-4. **Widget Interaction**: Users can adjust sliders in the embedded UI for real-time calculations
+5. **Widget Interaction**: Users can adjust sliders in the embedded UI for real-time calculations
    - No need to call the tool manually - widget handles user interactions via app.callServerTool()
 
 ## Performance Expectations

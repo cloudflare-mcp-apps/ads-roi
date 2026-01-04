@@ -280,34 +280,55 @@ export class AdsRoiMCP extends McpAgent<Env, unknown, Props> {
     );
 
     // ========================================================================
-    // OPTIONAL: Register Prompts
+    // Register Prompts (SDK 1.20+)
     // ========================================================================
-    // Prompts are templates that guide LLM behavior for specific use cases
-    // Uncomment and customize if you want to expose prompts to clients
-    //
-    // this.server.registerPrompt(
-    //   "example-prompt",
-    //   {
-    //     title: "Example Prompt",
-    //     description: "A template for common user requests",
-    //     argsSchema: {
-    //       topic: z.string().meta({ description: "Topic to discuss" })
-    //     }
-    //   },
-    //   async ({ topic }) => {
-    //     return {
-    //       messages: [
-    //         {
-    //           role: "user",
-    //           content: {
-    //             type: "text",
-    //             text: `Please use the 'example-tool' to process: ${topic}`
-    //           }
-    //         }
-    //       ]
-    //     };
-    //   }
-    // );
+    // Prompts transform tools into reusable workflow templates (like slash commands)
+    // Pattern: Core function first, then enhanced workflows
+
+    // Prompt 1: Core ROI Calculation (simple, direct tool mapping)
+    this.server.registerPrompt(
+      "calculate-roi",
+      {
+        title: "Calculate Campaign ROI",
+        description: "Calculate advertising campaign ROI with custom budget, CPC, conversion rate, and AOV parameters.",
+        argsSchema: {
+          budget: z.number()
+            .positive()
+            .default(10000)
+            .describe("Monthly advertising budget in dollars (e.g., 10000, 5000, 15000)"),
+          cpc: z.number()
+            .positive()
+            .default(2.5)
+            .describe("Cost per click in dollars (e.g., 2.5, 1.75, 3.00)"),
+          conversion: z.number()
+            .min(0)
+            .max(100)
+            .default(5)
+            .describe("Conversion rate as percentage 0-100 (e.g., 5 for 5%, 3.5 for 3.5%)"),
+          aov: z.number()
+            .positive()
+            .default(100)
+            .describe("Average order value in dollars (e.g., 100, 150, 75)")
+        }
+      },
+      async ({ budget, cpc, conversion, aov }) => {
+        return {
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: `Please use the 'calculate_campaign_roi' tool to calculate advertising ROI with these parameters:
+- monthlyBudget: ${budget}
+- cpc: ${cpc}
+- conversionRatePercent: ${conversion}
+- averageOrderValue: ${aov}`
+              }
+            }
+          ]
+        };
+      }
+    );
 
     logger.info({ event: 'server_started', auth_mode: 'dual' });
   }

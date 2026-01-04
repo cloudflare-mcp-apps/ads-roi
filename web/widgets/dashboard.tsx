@@ -267,11 +267,11 @@ function RoiCalculatorWidget() {
 
   return (
     <div className="h-[600px] w-full flex flex-col overflow-hidden bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100">
-      <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
+      <div className="flex-1 flex flex-col p-4 space-y-3 overflow-y-auto">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Advertising ROI Calculator</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <h1 className="text-xl font-bold">Advertising ROI Calculator</h1>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
             Adjust parameters to see real-time profit projections
           </p>
         </div>
@@ -283,10 +283,10 @@ function RoiCalculatorWidget() {
         ) : data ? (
           <>
             {/* Sliders */}
-            <div className="space-y-4 bg-gray-50 dark:bg-slate-800 p-4 rounded-lg">
+            <div className="space-y-2 bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
               {/* Monthly Budget */}
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1">
                   Monthly Budget: ${inputs.monthlyBudget.toLocaleString()}
                 </label>
                 <input
@@ -302,7 +302,7 @@ function RoiCalculatorWidget() {
 
               {/* Cost Per Click */}
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1">
                   Cost Per Click: ${inputs.cpc.toFixed(2)}
                 </label>
                 <input
@@ -318,7 +318,7 @@ function RoiCalculatorWidget() {
 
               {/* Conversion Rate */}
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1">
                   Conversion Rate: {inputs.conversionRatePercent.toFixed(1)}%
                 </label>
                 <input
@@ -336,7 +336,7 @@ function RoiCalculatorWidget() {
 
               {/* Average Order Value */}
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1">
                   Average Order Value: ${inputs.averageOrderValue.toLocaleString()}
                 </label>
                 <input
@@ -352,34 +352,34 @@ function RoiCalculatorWidget() {
             </div>
 
             {/* Metrics Cards */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Clicks</div>
-                <div className="text-2xl font-bold mt-1">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-gray-50 dark:bg-slate-800 p-2 rounded-lg text-center">
+                <div className="text-xs text-gray-600 dark:text-gray-400">Clicks</div>
+                <div className="text-xl font-bold mt-0.5">
                   {data.metrics.clicks.toLocaleString()}
                 </div>
               </div>
-              <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Conversions</div>
-                <div className="text-2xl font-bold mt-1">
+              <div className="bg-gray-50 dark:bg-slate-800 p-2 rounded-lg text-center">
+                <div className="text-xs text-gray-600 dark:text-gray-400">Conversions</div>
+                <div className="text-xl font-bold mt-0.5">
                   {data.metrics.conversions.toLocaleString()}
                 </div>
               </div>
-              <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Revenue</div>
-                <div className="text-2xl font-bold mt-1">
+              <div className="bg-gray-50 dark:bg-slate-800 p-2 rounded-lg text-center">
+                <div className="text-xs text-gray-600 dark:text-gray-400">Revenue</div>
+                <div className="text-xl font-bold mt-0.5">
                   ${data.metrics.revenue.toLocaleString()}
                 </div>
               </div>
             </div>
 
             {/* ROI Summary */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 p-4 rounded-lg">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 p-3 rounded-lg">
               <div className="flex justify-between items-center">
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Profit</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Total Profit</div>
                   <div
-                    className={`text-3xl font-bold mt-1 ${
+                    className={`text-2xl font-bold mt-0.5 ${
                       data.metrics.profit >= 0
                         ? "text-green-600 dark:text-green-400"
                         : "text-red-600 dark:text-red-400"
@@ -389,9 +389,9 @@ function RoiCalculatorWidget() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">ROI</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">ROI</div>
                   <div
-                    className={`text-3xl font-bold mt-1 ${
+                    className={`text-2xl font-bold mt-0.5 ${
                       data.metrics.roiPercent >= 0
                         ? "text-green-600 dark:text-green-400"
                         : "text-red-600 dark:text-red-400"
@@ -401,13 +401,13 @@ function RoiCalculatorWidget() {
                   </div>
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                 Break-even budget: ${data.metrics.breakEvenBudget.toLocaleString()}
               </div>
             </div>
 
             {/* Chart */}
-            <div className="flex-1 min-h-[200px]">
+            <div className="flex-1 min-h-[140px]">
               {chartData && (
                 <Line ref={chartRef} data={chartData} options={chartOptions as any} />
               )}
