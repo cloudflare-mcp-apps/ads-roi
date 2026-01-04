@@ -65,10 +65,12 @@ function RoiCalculatorWidget() {
   /**
    * PATTERN: useApp hook handles connection and provides app instance
    * CRITICAL: Register ALL handlers BEFORE connect() via onAppCreated
+   * NOTE: autoResize disabled - we use fixed h-[650px] container
    */
   const { app, error } = useApp({
     appInfo: { name: "ads-roi-calculator", version: "1.0.0" },
     capabilities: {},
+    options: { autoResize: false }, // Disable auto-resize for fixed-height widget
     onAppCreated: (app) => {
       /**
        * HANDLER 1: ontoolresult - Receives server response AFTER processing
